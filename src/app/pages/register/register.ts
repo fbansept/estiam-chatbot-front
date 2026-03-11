@@ -27,9 +27,14 @@ export class Register {
   onSubmitRegister() {
     console.log('tentative de connexion');
 
-    if (this.formulaire.valid && this.hasMinimumLength && this.hasLowercaseChar && this.hasUppercaseChar) {
+    if (
+      this.formulaire.valid &&
+      this.hasMinimumLength &&
+      this.hasLowercaseChar &&
+      this.hasUppercaseChar
+    ) {
       this.httpClient
-        .post('http://localhost:8080/register', this.formulaire.value, { responseType: 'text' })
+        .post('http://localhost:8080/sign-in', this.formulaire.value, { responseType: 'text' })
         .subscribe((reponse) => console.log(reponse));
     }
   }
