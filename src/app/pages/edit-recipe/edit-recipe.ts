@@ -27,30 +27,44 @@ export class EditRecipe {
   ngOnInit() {
     // Get the recipe ID from the route parameters
     this.activatedRoute.params.subscribe((params) => {
-      this.recipeId.set(params['id']);
+      //si c'est une edition, on charge la recette
+      if (params['id']) {
+        this.recipeId.set(params['id']);
 
-      this.httpClient
-        .get(`http://localhost:8080/recipe/${this.recipeId()}`)
-        .subscribe((recipe: any) => {
-          this.recipeForm.patchValue(recipe);
-        });
+        this.httpClient
+          .get(`http://localhost:8080/recipe/${this.recipeId()}`)
+          .subscribe((recipe: any) => {
+            this.recipeForm.patchValue(recipe);
+          });
+      }
     });
   }
 
   onSubmit() {
     if (this.recipeForm.valid) {
-      this.httpClient
-        .put(`http://localhost:8080/recipe/${this.recipeId()}`, this.recipeForm.value)
-        .subscribe({
-          next: () => alert('Recipe updated successfully!'),
+      // Si c'est une edition
+      if (this.recipeId()) {
+        this.httpClient
+          .put(`http://localhost:8080/recipe/${this.recipeId()}`, this.recipeForm.value)
+          .subscribe({
+            next: () => alert('Recipe updated successfully!'),
+            error: (err) => {
+              if (err.status === 404) {
+                alert('Recipe not found. It may have been deleted.');
+              } else {
+                alert('An error occurred while updating the recipe. Please try again.');
+              }
+            },
+          });
+      } else {
+        // Si c'est une création
+        this.httpClient.post('http://localhost:8080/recipe', this.recipeForm.value).subscribe({
+          next: () => alert('Recipe created successfully!'),
           error: (err) => {
-            if (err.status === 404) {
-              alert('Recipe not found. It may have been deleted.');
-            } else {
-              alert('An error occurred while updating the recipe. Please try again.');
-            }
+            alert('An error occurred while creating the recipe. Please try again.');
           },
         });
+      }
     }
   }
 }
